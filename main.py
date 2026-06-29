@@ -1,1 +1,4 @@
-test = 0
+from fastapi import FastAPI
+
+app = FastAPI()
+
