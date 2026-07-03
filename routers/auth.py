@@ -3,7 +3,7 @@
 from datetime import timedelta, datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 from database import SessionLocal
 from typing import Annotated
@@ -14,6 +14,7 @@ from models import Users
 from passlib.context import CryptContext
 
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+
 router = APIRouter(
     prefix='/auth',
     tags=['auth']
@@ -30,7 +31,7 @@ db_dependency = Annotated[Session, Depends(get_db)]
 #Criar o usuario
 class CreateUserRequest(BaseModel):
     username: str
-    email: str
+    email: EmailStr
     hashed_password: str
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
@@ -44,7 +45,6 @@ def create_user(create_user_model: CreateUserRequest, db: db_dependency):
     )
     db.add(create_new_user)
     db.commit()
-
 #Autenticar usuario
 def authenticate_user(username: str, password: str, db: db_dependency):
     user = db.query(Users).filter(Users.username == username).first()
