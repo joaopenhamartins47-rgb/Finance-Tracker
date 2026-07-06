@@ -1,32 +1,23 @@
-#create access token
-#get current user
 from datetime import timedelta, datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, EmailStr
 
-from database import SessionLocal
 from typing import Annotated
 
-from sqlalchemy.orm import Session
 from models import Users
 
 from passlib.context import CryptContext
 
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 
+from dependencies import db_dependency
 router = APIRouter(
     prefix='/auth',
     tags=['auth']
 )
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
-db_dependency = Annotated[Session, Depends(get_db)]
+
 
 #Criar o usuario
 class CreateUserRequest(BaseModel):
@@ -77,7 +68,7 @@ auth2bearer = OAuth2PasswordBearer(tokenUrl='auth/token')
 
 from starlette import status
 
-def get_access_token(token: Annotated[str, Depends(auth2bearer)]):
+def get_current_user(token: Annotated[str, Depends(auth2bearer)]):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
