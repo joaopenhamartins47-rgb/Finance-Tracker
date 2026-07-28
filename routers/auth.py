@@ -36,6 +36,7 @@ def create_user(create_user_model: CreateUserRequest, db: db_dependency):
     )
     db.add(create_new_user)
     db.commit()
+
 #Autenticar usuario
 def authenticate_user(username: str, password: str, db: db_dependency):
     user = db.query(Users).filter(Users.username == username).first()

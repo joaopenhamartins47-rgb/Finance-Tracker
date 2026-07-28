@@ -1,0 +1,14 @@
+#python-version
+.python-version
+
+#practice files
+initial logic.py
+leet.py
+
+#env file
+.env
+
+#Routers
+.idea/
+__pycache__/
+routers/__pycache__/
