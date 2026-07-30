@@ -2,13 +2,21 @@
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+from core.configs import settings
+from sqlalchemy.orm import Session
+from typing import Annotated
+from fastapi import Depends
 
-import os
-from dotenv import load_dotenv
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-load_dotenv()
+db_dependency = Annotated[Session, Depends(get_db)]
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = settings.DATABASE_URL
 
 engine = create_engine(DATABASE_URL)
 
