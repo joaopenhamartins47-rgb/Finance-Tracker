@@ -6,8 +6,11 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from core.configs import settings
 
+
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 auth2bearer = OAuth2PasswordBearer(tokenUrl='auth/token')
+
+
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt_context.verify(plain_password, hashed_password)
@@ -31,3 +34,5 @@ def get_current_user(token: Annotated[str, Depends(auth2bearer)]):
         return {'username': username, 'id': user_id}
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate user')
+
+user_dependency = Annotated[dict, Depends(get_current_user)]
