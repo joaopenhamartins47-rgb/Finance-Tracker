@@ -15,10 +15,6 @@ router = APIRouter(
     tags=['auth']
 )
 
-
-
-
-
 @router.post("/create-user", response_model=UserResponse)
 def create_user_endpoint(create_user_model: CreateUserRequest, db: db_dependency):
     create_new_user = Users(
@@ -29,8 +25,6 @@ def create_user_endpoint(create_user_model: CreateUserRequest, db: db_dependency
     create_user(create_new_user, db)
     db.refresh(create_new_user)
     return create_new_user
-
-
 
 @router.post("/token")
 def login_to_access_token(db: db_dependency, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
