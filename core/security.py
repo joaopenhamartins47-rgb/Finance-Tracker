@@ -1,26 +1,25 @@
 from datetime import datetime, timezone, timedelta
-from jose import jwt, JWTError
-from core.configs import settings
 from typing import Annotated
+from jose import jwt, JWTError
 from passlib.context import CryptContext
+from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from fastapi import Depends, HTTPException
-from starlette import status
-from database import db_dependency
-from repositories.users import find_user
+from core.configs import settings
 
-#Acessar o token
+bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 auth2bearer = OAuth2PasswordBearer(tokenUrl='auth/token')
 
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return bcrypt_context.verify(plain_password, hashed_password)
 
-def create_user_token(username: str, user_id: int, expires_delta: timedelta):
+def get_password_hash(password: str) -> str:
+    return bcrypt_context.hash(password)
+
+def create_user_token(username: str, user_id: int, expires_delta: timedelta) -> str:
     encode = {'sub': username, 'id': user_id}
     expires = datetime.now(timezone.utc) + expires_delta
     encode.update({'exp': expires})
     return jwt.encode(encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
-
-
-bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 def get_current_user(token: Annotated[str, Depends(auth2bearer)]):
     try:
@@ -32,12 +31,3 @@ def get_current_user(token: Annotated[str, Depends(auth2bearer)]):
         return {'username': username, 'id': user_id}
     except JWTError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate user')
-
-#Autenticar usuario
-def authenticate_user(username: str, password: str, db: db_dependency):
-    user = find_user(username, db)
-    if user is None:
-        return False
-    if not bcrypt_context.verify(password, user.hashed_password):
-        return False
-    return user

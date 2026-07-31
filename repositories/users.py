@@ -3,20 +3,13 @@ from models import Users
 from sqlalchemy.exc import IntegrityError
 from core.exceptions import UserAlreadyExistsError
 
-def find_user(username: str, db:db_dependency):
+def find_by_username(username: str, db:db_dependency):
     return db.query(Users).filter(Users.username == username).first()
 
-def find_email(email: str, db:db_dependency):
+def find_by_email(email: str, db:db_dependency):
     return db.query(Users).filter(Users.email == email).first()
 
-def create_user(user: Users, db: db_dependency):
-    user_exist = find_user(user.username, db)
-    if user_exist:
-        raise UserAlreadyExistsError("Username já cadastrado!")
-    email_exist = find_email(user.email, db)
-    if email_exist:
-        raise UserAlreadyExistsError("Email já cadastrado!")
-
+def save_user(user: Users, db: db_dependency):
     #Tratamento caso tenha acessos simultâneos com os mesmos dados
     db.add(user)
     try:
@@ -24,5 +17,7 @@ def create_user(user: Users, db: db_dependency):
     except IntegrityError:
         db.rollback()
         raise UserAlreadyExistsError('Usuário ou email já cadastrado')
+    db.refresh(user)
+    return user
 
 
