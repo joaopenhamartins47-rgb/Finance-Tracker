@@ -17,3 +17,11 @@ class UserNotFoundError(AppException):
 class InvalidCredentialsError(AppException):
     def __init__(self, message: str = "Usuário ou senha incorretos"):
         super().__init__(message=message, status_code=401)  # status_code 401
+
+class EmailAlreadyExists(AppException):
+    def __init__(self, message: str = "Email já cadastrado!"):
+        super().__init__(message=message, status_code=409)
+
+class UsernameAlreadyExists(AppException):
+    def __init__(self, message: str = "Username já cadastrado!"):
+        super().__init__(message=message, status_code=409)

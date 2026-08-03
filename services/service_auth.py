@@ -3,17 +3,17 @@ from database import db_dependency
 from models import Users
 from schemas import CreateUserRequest
 from core.configs import settings
-from core.exceptions import UserAlreadyExistsError, InvalidCredentialsError
+from core.exceptions import UsernameAlreadyExists, InvalidCredentialsError, EmailAlreadyExists
 from core.security import get_password_hash, verify_password, create_user_token
 from repositories.users import find_by_email, find_by_username, save_user
 
 
 def create_user_service(create_user_model: CreateUserRequest, db: db_dependency) -> Users:
     if find_by_username(create_user_model.username, db):
-        raise UserAlreadyExistsError()
+        raise UsernameAlreadyExists()
 
     if find_by_email(create_user_model.email, db):
-        raise UserAlreadyExistsError()
+        raise EmailAlreadyExists()
 
     create_new_user = Users(
         username=create_user_model.username,

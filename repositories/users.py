@@ -16,7 +16,7 @@ def save_user(user: Users, db: db_dependency):
         db.commit()
     except IntegrityError:
         db.rollback()
-        raise UserAlreadyExistsError('Usuário ou email já cadastrado')
+        raise UserAlreadyExistsError()
     db.refresh(user)
     return user
 
