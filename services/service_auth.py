@@ -10,10 +10,10 @@ from repositories.users import find_by_email, find_by_username, save_user
 
 def create_user_service(create_user_model: CreateUserRequest, db: db_dependency) -> Users:
     if find_by_username(create_user_model.username, db):
-        raise UserAlreadyExistsError("Username já cadastrado!")
+        raise UserAlreadyExistsError()
 
     if find_by_email(create_user_model.email, db):
-        raise UserAlreadyExistsError("Email já cadastrado!")
+        raise UserAlreadyExistsError()
 
     create_new_user = Users(
         username=create_user_model.username,
@@ -27,7 +27,7 @@ def login_service(db: db_dependency, username: str, password: str) -> dict[str, 
     user = find_by_username(username, db)
 
     if not user or not verify_password(password, user.hashed_password):
-        raise InvalidCredentialsError("Usuário ou senha incorretos")
+        raise InvalidCredentialsError()
 
     token = create_user_token(
         user.username,
