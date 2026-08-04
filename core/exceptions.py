@@ -29,3 +29,7 @@ class UsernameAlreadyExists(AppException):
 class SaveAccountError(AppException):
     def __init__(self, message: str = "Erro ao salvar conta"):
         super().__init__(message=message, status_code=500)
+
+class AccountNotFoundError(AppException):
+    def __init__(self, message: str = "Erro ao encontrar conta"):
+        super().__init__(message=message, status_code=404)
