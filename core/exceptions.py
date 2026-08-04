@@ -25,3 +25,4 @@ class EmailAlreadyExists(AppException):
 class UsernameAlreadyExists(AppException):
     def __init__(self, message: str = "Username já cadastrado!"):
         super().__init__(message=message, status_code=409)
+

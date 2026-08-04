@@ -3,8 +3,12 @@ from models import Users
 from sqlalchemy.exc import IntegrityError
 from core.exceptions import UserAlreadyExistsError
 
-def find_by_username(username: str, db:db_dependency):
+
+def find_by_username(username: str, db: db_dependency):
     return db.query(Users).filter(Users.username == username).first()
+
+def find_by_id(user_id: int, db:db_dependency):
+    return db.query(Users).filter(Users.id == user_id).first()
 
 def find_by_email(email: str, db:db_dependency):
     return db.query(Users).filter(Users.email == email).first()
