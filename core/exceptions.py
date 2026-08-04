@@ -26,3 +26,6 @@ class UsernameAlreadyExists(AppException):
     def __init__(self, message: str = "Username já cadastrado!"):
         super().__init__(message=message, status_code=409)
 
+class SaveAccountError(AppException):
+    def __init__(self, message: str = "Erro ao salvar conta"):
+        super().__init__(message=message, status_code=500)

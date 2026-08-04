@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from models import AccountType
 
 # Esquema de Entrada (Input)
 class CreateUserRequest(BaseModel):
@@ -21,3 +22,13 @@ class UserUpdate(BaseModel):
 class UserUpdatePassword(BaseModel):
     password: str
     new_password: str = Field(min_length=6)
+
+
+
+class UserAccount(BaseModel):
+    id: int
+    user_id: int
+    nome: str = Field(min_length=3, max_length=30)
+    account_type: AccountType
+
+    model_config = ConfigDict(from_attributes=True)
