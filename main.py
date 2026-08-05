@@ -8,7 +8,6 @@ from database import engine
 from routers import auth, user, account
 app = FastAPI()
 
-Base.metadata.create_all(bind=engine)
 
 @app.exception_handler(AppException)
 async def app_exception_handler(request: Request, exc: AppException):
