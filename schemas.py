@@ -25,18 +25,18 @@ class UserUpdatePassword(BaseModel):
 
 
 class CreateAccountRequest(BaseModel):
-    nome: str = Field(min_length=3, max_length=30)
+    name: str = Field(min_length=3, max_length=30)
     account_type: AccountType
 
 class UpdateAccountRequest(BaseModel):
-    nome: str | None = Field(default=None, min_length=3, max_length=30)
+    name: str | None = Field(default=None, min_length=3, max_length=30)
     account_type: AccountType | None = Field(default=None)
 
 
 class AccountResponse(BaseModel):
     id: int
     user_id: int
-    nome: str = Field(min_length=3, max_length=30)
+    name: str = Field(min_length=3, max_length=30)
     account_type: AccountType
 
     model_config = ConfigDict(from_attributes=True)

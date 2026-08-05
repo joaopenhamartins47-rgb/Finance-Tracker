@@ -17,7 +17,7 @@ def get_user_account_id(acc_id: int, user_id: int, db:db_dependency):
 def create_account(user_id: int, account_request: CreateAccountRequest, db: db_dependency):
     account_model = Accounts(
         user_id=user_id,
-        nome=account_request.nome,
+        name=account_request.name,
         account_type=account_request.account_type
     )
     return save_account(account_model, db)
@@ -26,8 +26,8 @@ def edit_account(acc_id: int, user_id: int, acc_put: UpdateAccountRequest, db:db
     account = find_by_id(acc_id, user_id, db)
     if account is None:
         raise AccountNotFoundError()
-    if acc_put.nome is not None:
-        account.nome=acc_put.nome
+    if acc_put.name is not None:
+        account.name=acc_put.name
     if acc_put.account_type is not None:
         account.account_type=acc_put.account_type
     return save_account(account, db)
