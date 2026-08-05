@@ -32,6 +32,7 @@ class Categories(Base):
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     name = Column(String, nullable=False)
     is_default = Column(Boolean, default=False)
+    exclude_from_reports = Column(Boolean, default=False)
 
 class Transactions(Base):
     __tablename__ = 'transactions'
