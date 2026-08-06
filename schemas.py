@@ -40,3 +40,16 @@ class AccountResponse(BaseModel):
     account_type: AccountType
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class CategoriesResponse(BaseModel):
+    user_id: int
+    name: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+class CreateUpdateCategory(BaseModel):
+    user_id: int
+    name: str
+
+

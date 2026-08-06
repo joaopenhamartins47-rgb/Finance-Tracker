@@ -6,6 +6,7 @@ from core.configs import settings
 from core.exceptions import UsernameAlreadyExists, InvalidCredentialsError, EmailAlreadyExists
 from core.security import get_password_hash, verify_password, create_user_token
 from repositories.users import find_by_email, find_by_username, save_user
+from services.service_categories import create_default_categories
 
 
 def create_user_service(create_user_model: CreateUserRequest, db: db_dependency) -> Users:
@@ -20,7 +21,10 @@ def create_user_service(create_user_model: CreateUserRequest, db: db_dependency)
         email=create_user_model.email,
         hashed_password=get_password_hash(create_user_model.password)
     )
-    return save_user(create_new_user, db)
+
+    new_user = save_user(create_new_user, db)
+    create_default_categories(new_user.id, db)
+    return new_user
 
 
 def login_service(db: db_dependency, username: str, password: str) -> dict[str, str]:

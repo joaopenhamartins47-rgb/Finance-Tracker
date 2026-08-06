@@ -37,3 +37,15 @@ class AccountNotFoundError(AppException):
 class TransactionNotFoundError(AppException):
     def __init__(self, message: str = "Transação nao encontrada!"):
         super().__init__(message=message, status_code=404)
+
+class CategoryNotFoundError(AppException):
+    def __init__(self, message: str = "Categoria nao encontrada!"):
+        super().__init__(message=message, status_code=404)
+
+class CategoryExistsError(AppException):
+    def __init__(self, message: str = "Categoria já existente"):
+        super().__init__(message=message, status_code=409)
+
+class CategoryIsDefaultError(AppException):
+    def __init__(self, message: str = "Categoria padrão não pode ser editada ou excluída"):
+        super().__init__(message=message, status_code=400)
