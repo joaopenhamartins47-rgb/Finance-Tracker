@@ -4,6 +4,7 @@ from services.service_classification import DEFAULT_CATEGORY_NAMES
 from repositories.repo_categories import save_categories, find_category_by_id, find_all_categories, find_category_by_name, save_category, delete_category_repo
 from core.exceptions import CategoryNotFoundError, CategoryExistsError, CategoryIsDefaultError
 from schemas import CreateUpdateCategory
+from sqlalchemy.exc import IntegrityError
 
 def create_default_categories(user_id: int, db: db_dependency):
     categories = [
@@ -28,7 +29,11 @@ def create_category(user_id: int, create_model: CreateUpdateCategory, db: db_dep
     if cat:
         raise CategoryExistsError()
     cat = Categories(name=create_model.name, is_default=False, user_id=user_id)
-    return save_category(cat, db)
+    try:
+        return save_category(cat, db)
+    except IntegrityError:
+        db.rollback()
+        raise CategoryExistsError()
 
 def update_category(user_id: int, cat_id: int, update_model: CreateUpdateCategory, db: db_dependency):
     cat = find_category_by_id(user_id, cat_id, db)
