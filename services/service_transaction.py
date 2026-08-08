@@ -10,6 +10,12 @@ def get_all_transactions(user_id: int, db: db_dependency) -> list[Transactions]:
     tx = find_all_transaction(user_id, db)
     return tx
 
+def get_transaction_by_id(user_id: int, tx_id: int, db: db_dependency):
+    tx = find_transaction_by_id(tx_id, user_id, db)
+    if not tx:
+        raise TransactionNotFoundError()
+    return tx
+
 def create_tx(user_id: int, create_model: CreateTransactionRequest, db: db_dependency):
     acc = find_acc_by_id(create_model.account_id, user_id, db)
     if not acc:
