@@ -37,9 +37,7 @@ def build_keyword_to_category_map(user_id: int, db: db_dependency) -> dict[str, 
     for category_name, keywords in CATEGORY_KEYWORDS.items():
         category = find_category_by_name(category_name, user_id, db)
         if category is None:
-            raise CategoryNotFoundError(
-                f"Categoria padrão '{category_name}' não encontrada — rode create_default_categories antes de classificar."
-            )
+            raise CategoryNotFoundError()
         for kw in keywords:
             mapping[kw] = category.id
     return mapping
@@ -49,11 +47,11 @@ def classify_all_transactions(user_id: int, db: db_dependency):
 
     payment_category = find_category_by_name("Pagamentos/Estornos", user_id, db)
     if payment_category is None:
-        raise CategoryNotFoundError("Categoria 'Pagamentos/Estornos' não encontrada.")
+        raise CategoryNotFoundError()
 
     fallback_category = find_category_by_name("Outros", user_id, db)
     if fallback_category is None:
-        raise CategoryNotFoundError("Categoria 'Outros' não encontrada.")
+        raise CategoryNotFoundError()
 
     transactions = find_unclassified_transactions(user_id, db)
     count = 0
