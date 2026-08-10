@@ -1,8 +1,9 @@
 from fastapi import APIRouter, UploadFile, Form, File
 from services.service_transaction import create_tx, delete_tx, get_all_transactions, get_transaction_by_id, update_tx, import_csv
+from services.service_classification import classify_all_transactions
 from database import db_dependency
 from core.security import user_dependency
-from schemas import CreateTransactionRequest, UpdateTransactionRequest, TransactionResponse, ImportcsvResponse
+from schemas import CreateTransactionRequest, UpdateTransactionRequest, TransactionResponse, ImportcsvResponse, ClassifyPendingResponse
 from starlette import status
 
 
@@ -32,10 +33,9 @@ async def delete_transactions_endpoint(user: user_dependency, tx_id: int, db: db
     return delete_tx(user['id'], tx_id, db)
 
 @router.post("/import-csv", status_code=status.HTTP_200_OK, response_model=ImportcsvResponse)
-async def import_csv_endpoint(
-    user: user_dependency,
-    db: db_dependency,
-    account_id: int = Form(...),
-    file: UploadFile = File(...),
-):
+async def import_csv_endpoint(user: user_dependency, db: db_dependency, account_id: int = Form(...), file: UploadFile = File(...),):
     return import_csv(user['id'], account_id, file, db)
+
+@router.post("/classify-pending", status_code=status.HTTP_200_OK, response_model=ClassifyPendingResponse)
+async def classify_pending_transactions_endpoint(user: user_dependency,db: db_dependency):
+    return classify_all_transactions(user['id'], db)

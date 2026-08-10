@@ -90,5 +90,8 @@ class ImportcsvResponse(BaseModel):
     importadas: int
     duplicadas: int
 
+class ClassifyPendingResponse(BaseModel):
+    classificadas: int
+
 
 
