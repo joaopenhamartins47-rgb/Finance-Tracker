@@ -20,10 +20,10 @@ CATEGORY_KEYWORDS = {
     "Educação": ["coursera", "udemy", "knn", "unoeste", "faculdade", "universidade", "alura"],
 
     "Lazer e Entretenimento": ["netflix", "spotify", "amazon prime", "disney", "cinema", "cinemark", "ingresso.com",
-                               "steam", "playstation", "psn", "nuuvem", "ggmax", "microsoft", "xbox"],
+                               "steam", "playstation", "psn", "nuuvem", "ggmax", "microsoft", "xbox", "youtube", "google"],
 
     "Compras e Varejo": ["amazon", "mercado livre", "mercadolivre", "shopee", "aliexpress", "shein", "magalu",
-                         "magazine luiza", "casas bahia", "renner", "cea", "zara", "atacadao", "assai", "supermercado", "mercado"],
+                         "magazine luiza", "casas bahia", "renner", "cea", "zara", "atacadao", "assai", "supermercado", "mercado", "americanas"],
 
 
     "Moradia e Contas": ["enel", "sabesp", "sanepar", "energisa", "vivo", "claro", "tim", "condominio", "iptu"],
