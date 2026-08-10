@@ -9,8 +9,8 @@ from database import db_dependency
 
 CATEGORY_KEYWORDS = {
     "Combustível": ["posto"],
-    "Alimentação": ["ifood", "ze delivery", "burger", "pizzaria", "atacadao"],
-    "Transporte": ["99 ride", "uber"],
+    "Alimentação": ["ifood", "ze delivery", "burger", "pizzaria", "atacadao", "uber eats", "99 food"],
+    "Transporte": ["99 ride", "uber trip", "uber *trip"],
     "Saúde": ["drogaria", "farmacia"],
     "Educação": ["coursera"],
 }

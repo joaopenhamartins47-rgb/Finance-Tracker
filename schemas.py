@@ -86,5 +86,9 @@ class TransactionResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class ImportcsvResponse(BaseModel):
+    importadas: int
+    duplicadas: int
+
 
 

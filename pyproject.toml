@@ -9,6 +9,7 @@ dependencies = [
     "bcrypt==4.0.1",
     "email-validator>=2.3.0",
     "fastapi>=0.138.1",
+    "pandas>=3.0.5",
     "passlib[bcrypt]>=1.7.4",
     "psycopg2>=2.9.12",
     "pydantic-settings>=2.14.2",

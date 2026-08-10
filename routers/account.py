@@ -7,7 +7,7 @@ from starlette import status
 
 router = APIRouter(
     prefix='/account',
-    tags=['accounts']
+    tags=['Accounts']
 )
 
 @router.get("/", response_model=list[AccountResponse])

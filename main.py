@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 from core.exceptions import AppException
 from models import Base
 from database import engine
-from routers import auth, user, account, category
+from routers import auth, user, account, category, transaction
 app = FastAPI()
 
 
@@ -20,3 +20,4 @@ app.include_router(auth.router)
 app.include_router(user.router)
 app.include_router(account.router)
 app.include_router(category.router)
+app.include_router(transaction.router)

@@ -1,9 +1,10 @@
-from fastapi import APIRouter
-from services.service_transaction import create_tx, delete_tx, get_all_transactions, get_transaction_by_id, update_tx
+from fastapi import APIRouter, UploadFile, Form, File
+from services.service_transaction import create_tx, delete_tx, get_all_transactions, get_transaction_by_id, update_tx, import_csv
 from database import db_dependency
 from core.security import user_dependency
-from schemas import CreateTransactionRequest, UpdateTransactionRequest, TransactionResponse
+from schemas import CreateTransactionRequest, UpdateTransactionRequest, TransactionResponse, ImportcsvResponse
 from starlette import status
+
 
 router = APIRouter(
     prefix="/transactions",
@@ -29,3 +30,12 @@ async def update_transactions_endpoint(user: user_dependency, update_model: Upda
 @router.delete("/{tx_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_transactions_endpoint(user: user_dependency, tx_id: int, db: db_dependency):
     return delete_tx(user['id'], tx_id, db)
+
+@router.post("/import-csv", status_code=status.HTTP_200_OK, response_model=ImportcsvResponse)
+async def import_csv_endpoint(
+    user: user_dependency,
+    db: db_dependency,
+    account_id: int = Form(...),
+    file: UploadFile = File(...),
+):
+    return import_csv(user['id'], account_id, file, db)
