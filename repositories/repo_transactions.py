@@ -1,5 +1,7 @@
 from database import db_dependency
 from models import Transactions
+from sqlalchemy import insert
+
 
 
 def find_transaction_by_id(transaction_id: int, user_id: int, db: db_dependency):
@@ -24,3 +26,13 @@ def create_transaction(transaction: Transactions, db:db_dependency):
 def delete_transaction(transaction: Transactions, db: db_dependency):
     db.delete(transaction)
     db.commit()
+
+def create_transactions_bulk(rows: list[dict], db: db_dependency) -> None:
+    if not rows:
+        return
+    db.execute(insert(Transactions), rows)
+    db.commit()
+
+def find_existing_hashes_in(user_id: int, hashes: list[str], db: db_dependency) -> set[str]:
+    rows = db.query(Transactions.raw_import_hash).filter(Transactions.user_id == user_id,Transactions.raw_import_hash.in_(hashes)).all()
+    return {h for (h,) in rows}
