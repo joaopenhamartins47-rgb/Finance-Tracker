@@ -10,7 +10,7 @@ from database import db_dependency
 CATEGORY_KEYWORDS: dict[str, list[str]] = {
     "Combustível": ["posto", "ipiranga", "shell", "petrobras", "br mania"],
     "Transporte": ["99 ride", "uber trip", "uber *trip", "99app", "sem parar", "veloe", "azul", "gol", "latam", "buser", "expresso de prata"],
-    "Alimentação": ["ifood", "ze delivery", "burger", "pizzaria", "uber eats", "99 food", "mcdonalds", "bk", "carrefour", "padaria"],
+    "Alimentação": ["ifood", "ze delivery", "burger", "pizzaria", "uber eats", "99 food", "mcdonalds", "bk", "carrefour", "padaria", "Ifd", "99food"],
     "Saúde": ["drogaria", "farmacia", "raia", "pague menos", "sao paulo", "unimed", "amil"],
     "Educação": ["coursera", "udemy", "knn", "unoeste", "faculdade", "universidade", "alura"],
     "Lazer e Entretenimento": ["netflix", "spotify", "amazon prime", "disney", "cinema", "cinemark", "ingresso.com",

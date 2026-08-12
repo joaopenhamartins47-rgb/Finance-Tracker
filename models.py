@@ -34,7 +34,7 @@ class Accounts(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     user = relationship("Users", back_populates="accounts")
-    transactions = relationship("Transactions", back_populates="account")
+    transactions = relationship("Transactions", back_populates="account", cascade="all, delete-orphan")
 
 
 class Categories(Base):

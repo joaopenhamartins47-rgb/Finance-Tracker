@@ -21,7 +21,7 @@ def compute_import_hash(date: str, title: str, amount: Decimal) -> str:
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
-def import_csv(user_id: int, account_id: int, file: io.BytesIO, db: db_dependency) -> dict:
+def import_csv(user_id: int, account_id: int, file: UploadFile, db: db_dependency) -> dict:
     acc = find_acc_by_id(account_id, user_id, db)
     if not acc:
         raise AccountNotFoundError()
@@ -30,9 +30,9 @@ def import_csv(user_id: int, account_id: int, file: io.BytesIO, db: db_dependenc
     payment_category = find_category_by_name("Pagamentos/Estornos", user_id, db)
     fallback_category = find_category_by_name("Outros", user_id, db)
     if payment_category is None or fallback_category is None:
-        raise CategoryNotFoundError("Categorias padrão não encontradas — rode create_default_categories antes de importar.")
+        raise CategoryNotFoundError()
 
-    df = pd.read_csv(file)
+    df = pd.read_csv(file.file)
     df["amount"] = (
         df["amount"]
         .str.replace(".", "", regex=False)

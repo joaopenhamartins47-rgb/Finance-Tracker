@@ -4,9 +4,8 @@ import streamlit as st
 
 
 def render_dashboard(api):
-    st.title("📊 Análise de Dados Financeiros e Relatórios")
+    st.title("Análise de Dados Financeiros e Relatórios")
 
-    # 1. BUSCA DE DADOS NA API
     res_tx = api.get_transactions()
     res_acc = api.get_accounts()
     res_cat = api.get_categories()
@@ -19,14 +18,12 @@ def render_dashboard(api):
     acc_data = res_acc.json() if res_acc.status_code == 200 else []
     cat_data = res_cat.json() if res_cat.status_code == 200 else []
 
-    # 2. PREPARAÇÃO DO DATAFRAME
     df_tx = pd.DataFrame(tx_data)
 
     # Tratamento do valor
     df_tx["amount"] = pd.to_numeric(df_tx["amount"], errors="coerce").fillna(0.0)
     df_tx["Valor"] = df_tx["amount"].abs()
 
-    # Resgate da Descrição (suporta 'description' ou 'title' vindo da API)
     if "description" in df_tx.columns:
         df_tx["Descrição"] = df_tx["description"]
     elif "title" in df_tx.columns:
@@ -34,23 +31,43 @@ def render_dashboard(api):
     else:
         df_tx["Descrição"] = "Sem descrição"
 
-    # Tratamento da Data
     if "transaction_date" in df_tx.columns:
         df_tx["Data"] = pd.to_datetime(df_tx["transaction_date"]).dt.date
     else:
         df_tx["Data"] = pd.Timestamp.today().date()
 
-    # Mapeamento de Categoria
-    cat_map = {c["id"]: c["name"] for c in cat_data}
+    # Normaliza os IDs para string para evitar divergências de tipo
+    # entre o /categories e o /transactions (ex.: int vs str).
+    cat_map = {str(c["id"]): c["name"] for c in cat_data}
 
     def extract_category_name(row):
-        if isinstance(row.get("category"), dict) and row["category"].get("name"):
-            return row["category"]["name"]
-        return cat_map.get(row.get("category_id"), "Sem Categoria")
+        # Algumas respostas da API podem trazer a categoria já expandida.
+        category = row.get("category")
+
+        if isinstance(category, dict) and category.get("name"):
+            return category["name"]
+
+        # Também aceita respostas onde a API envia diretamente o nome.
+        if isinstance(category, str) and category.strip():
+            return category.strip()
+
+        category_id = row.get("category_id")
+        if category_id is not None:
+            category_name = cat_map.get(str(category_id))
+            if category_name:
+                return category_name
+
+        # Compatibilidade com APIs que usam outro nome para o ID.
+        category_id = row.get("categoryId")
+        if category_id is not None:
+            category_name = cat_map.get(str(category_id))
+            if category_name:
+                return category_name
+
+        return "Sem Categoria"
 
     df_tx["Categoria"] = df_tx.apply(extract_category_name, axis=1)
 
-    # Mapeamento de Conta
     acc_map = {a["id"]: a["name"] for a in acc_data}
     acc_type_map = {a["id"]: a.get("account_type", "checking") for a in acc_data}
 
@@ -68,7 +85,6 @@ def render_dashboard(api):
 
     df_tx["Tipo_Conta"] = df_tx.apply(extract_account_type, axis=1)
 
-    # Classificação Cartão de Crédito vs Conta Corrente
     def classify_transaction(row):
         if row["Tipo_Conta"] == "credit_card":
             return "Despesa" if row["amount"] > 0 else "Receita/Pagamento"
@@ -80,13 +96,11 @@ def render_dashboard(api):
     df_despesas = df_tx[df_tx["Natureza"] == "Despesa"].copy()
     df_receitas = df_tx[df_tx["Natureza"] == "Receita/Pagamento"].copy()
 
-    # 3. CÁLCULO DE MÉTRICAS GERAIS
     total_receita = df_receitas["Valor"].sum()
     total_despesa = df_despesas["Valor"].sum()
     saldo_liquido = total_receita - total_despesa
     taxa_economia = ((saldo_liquido / total_receita * 100) if total_receita > 0 else 0)
 
-    # --- RESUMO GERAL ---
     st.subheader("Resumo Geral")
     kpi1, kpi2, kpi3, kpi4 = st.columns(4)
     kpi1.metric("Receita / Pagamentos", f"R$ {total_receita:,.2f}")
@@ -96,7 +110,6 @@ def render_dashboard(api):
 
     st.markdown("---")
 
-    # --- INSIGHTS DE DESPESAS ---
     st.subheader("💡 Insights de Despesas")
     if not df_despesas.empty:
         maior_gasto = df_despesas["Valor"].max()
@@ -114,7 +127,6 @@ def render_dashboard(api):
 
     st.markdown("---")
 
-    # --- GRÁFICOS TEMPORAIS E VOLUME ---
     col_t1, col_t2 = st.columns(2)
 
     with col_t1:
@@ -147,8 +159,7 @@ def render_dashboard(api):
 
     st.markdown("---")
 
-    # --- RELATÓRIO ANALÍTICO POR CATEGORIA ---
-    st.subheader("📑 Relatório Analítico por Categoria (Despesas)")
+    st.subheader("Relatório Analítico por Categoria (Despesas)")
 
     if not df_despesas.empty:
         col_r1, col_r2 = st.columns([1, 2])
@@ -185,7 +196,72 @@ def render_dashboard(api):
 
     st.markdown("---")
 
-    # --- GRÁFICOS ADICIONAIS ---
+    st.subheader("Estatísticas Detalhadas")
+
+    col_s1, col_s2, col_s3, col_s4 = st.columns(4)
+    ticket_medio_geral = df_tx["Valor"].mean() if not df_tx.empty else 0
+    maior_transacao = df_tx.loc[df_tx["Valor"].idxmax()] if not df_tx.empty else None
+    dias_distintos = df_tx["Data"].nunique()
+    media_tx_dia = len(df_tx) / dias_distintos if dias_distintos else 0
+
+    col_s1.metric("Ticket Médio Geral", f"R$ {ticket_medio_geral:,.2f}")
+    col_s2.metric(
+        "Maior Transação",
+        f"R$ {maior_transacao['Valor']:,.2f}" if maior_transacao is not None else "R$ 0,00",
+        help=maior_transacao["Descrição"] if maior_transacao is not None else None,
+    )
+    col_s3.metric("Dias com Movimentação", f"{dias_distintos}")
+    col_s4.metric("Média de Transações/Dia", f"{media_tx_dia:.1f}")
+
+    if not df_despesas.empty:
+        freq_categoria = df_despesas["Categoria"].value_counts().idxmax()
+        gasto_categoria = df_relatorio_cat.iloc[0]["Categoria"] if not df_relatorio_cat.empty else "N/A"
+        col_s5, col_s6 = st.columns(2)
+        col_s5.metric("Categoria Mais Frequente", freq_categoria)
+        col_s6.metric("Categoria com Maior Gasto Total", gasto_categoria)
+
+    st.markdown("#### 📅 Comparativo: Mês Atual vs. Mês Anterior")
+    df_tx["Ano_Mes"] = pd.to_datetime(df_tx["Data"]).dt.to_period("M")
+    meses_disponiveis = sorted(df_tx["Ano_Mes"].unique())
+
+    if len(meses_disponiveis) >= 2:
+        mes_atual, mes_anterior = meses_disponiveis[-1], meses_disponiveis[-2]
+
+        def resumo_mes(periodo):
+            df_m = df_tx[df_tx["Ano_Mes"] == periodo]
+            rec = df_m[df_m["Natureza"] == "Receita/Pagamento"]["Valor"].sum()
+            desp = df_m[df_m["Natureza"] == "Despesa"]["Valor"].sum()
+            return rec, desp
+
+        rec_atual, desp_atual = resumo_mes(mes_atual)
+        rec_anterior, desp_anterior = resumo_mes(mes_anterior)
+
+        delta_rec = ((rec_atual - rec_anterior) / rec_anterior * 100) if rec_anterior else 0
+        delta_desp = ((desp_atual - desp_anterior) / desp_anterior * 100) if desp_anterior else 0
+
+        col_m1, col_m2 = st.columns(2)
+        col_m1.metric(
+            f"Receita ({mes_atual})", f"R$ {rec_atual:,.2f}", f"{delta_rec:+.1f}% vs {mes_anterior}"
+        )
+        col_m2.metric(
+            f"Despesa ({mes_atual})",
+            f"R$ {desp_atual:,.2f}",
+            f"{delta_desp:+.1f}% vs {mes_anterior}",
+            delta_color="inverse",
+        )
+    else:
+        st.info("É necessário haver dados de pelo menos dois meses para comparação.")
+
+    st.markdown("#### Top 5 Maiores Despesas Individuais")
+    if not df_despesas.empty:
+        top5 = df_despesas.nlargest(5, "Valor")[["Data", "Descrição", "Categoria", "Conta", "Valor"]].copy()
+        top5["Valor"] = top5["Valor"].apply(lambda x: f"R$ {x:,.2f}")
+        st.dataframe(top5, use_container_width=True, hide_index=True)
+    else:
+        st.info("Não há despesas para listar.")
+
+    st.markdown("---")
+
     col_g3, col_g4 = st.columns(2)
 
     with col_g3:
@@ -231,19 +307,15 @@ def render_dashboard(api):
 
     st.markdown("---")
 
-    # --- TABELA DE ANÁLISE INDIVIDUAL ---
     st.subheader("🔍 Análise Individual de Transações")
     st.write(
         "Explore cada transação individualmente. Você pode clicar no cabeçalho das colunas para ordenar (ex: veja tudo que está em 'Outros') ou pesquisar por termos específicos clicando na tabela.")
 
-    # Seleciona apenas as colunas mais úteis para o usuário ler
     colunas_exibicao = ["Data", "Descrição", "Categoria", "Conta", "Natureza", "Valor"]
     df_exibicao = df_tx[colunas_exibicao].copy()
 
-    # Formata a coluna de Valor para ficar mais bonita na tabela
     df_exibicao["Valor"] = df_exibicao["Valor"].apply(lambda x: f"R$ {x:,.2f}")
 
-    # Exibe o dataframe interativo do Streamlit
     st.dataframe(
         df_exibicao.sort_values(by="Data", ascending=False),
         use_container_width=True,
