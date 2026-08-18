@@ -75,7 +75,7 @@ A pre-configured, fixed dictionary applied to every user at account creation, us
 
 Processed based on the data provided in the Nubank CSV upload. When a file is uploaded, each transaction description is checked against the category dictionary: if there's a match, it's automatically classified by category_id and flagged is_classified=True, if not, it falls into "Outros" Everything is collected into a list and committed to the database in a single write at the end. Transactions can also be created and recategorized manually.
 
-![Arquitetura do projeto](images/arquitetura.png)
+![Arquitetura do projeto](images/arquitetura_import.png)
 ## How to Use
 
 Run the backend and frontend in two separate terminals:
